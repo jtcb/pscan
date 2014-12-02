@@ -1,6 +1,7 @@
 (ns pscan.core 
   (:require [clojure.core.reducers :as r]
-            [clojure.set :as s]))
+            [clojure.set :as s]
+            [clojure.string :refer [split]]))
 
 (def pts [[0 0] [0 1] [0 2] [1 0] [1 1] [1 2] [2 0] [2 1] [2 2]])
 
@@ -40,7 +41,7 @@
           (let [current-point (first s)
                 result (region-query current-point pts metric eps)
                 size (count result)
-                unvisited-result (filter #(not (v %)) result)]
+                unvisited-result (remove #(v %) result)]
                 
             (if (>= size min-pts) ;new core point
               (recur (disj (into s unvisited-result) current-point)
@@ -51,13 +52,44 @@
                      c 
                      (conj v current-point)))))))))
 
+(defn dbscan
+  "Run dbscan
+   Not fully tested"
+  [pts metric eps min-pts]
+  
+  (loop [points pts
+         visited #{}
+         clusters #{}]
+    (let [pt (first points)]
+      (cond
+        (empty? points)
+          clusters
+        (visited pt) 
+          (recur (rest points)
+                 (conj visited pt)
+                 clusters)
+        :else
+          (let [{new-cluster :core, new-visited :visited}
+                (expand-cluster pt pts metric eps min-pts visited)]
+            (recur (rest points)
+                   new-visited
+                   (conj clusters new-cluster))))))) 
 
+(defn parse-float
+  "Parse string s as float"
+  [s]
+  (Float/parseFloat s))
 
 
 
 (comment
 
 (def star [[0 0] [0 1] [1 0] [-1 0] [0 -1]])
+
+(def blobs [[0 0] [0 1] [1 0] [1 1]
+            [100 100] [101 100] [100 101] [101 101]])
+
+(dbscan blobs r2-dist 2 3)
 
 (expand-cluster [0 0] star r2-dist 1 2 #{})
 
