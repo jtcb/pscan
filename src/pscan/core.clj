@@ -1,9 +1,8 @@
 (ns pscan.core 
   (:require [clojure.core.reducers :as r]
             [clojure.set :as s]
-            [clojure.string :refer [split]]))
-
-(def pts [[0 0] [0 1] [0 2] [1 0] [1 1] [1 2] [2 0] [2 1] [2 2]])
+            [clojure.string :refer [split]])
+  (:import match.Match2))
 
 (defn r2-dist
   "Euclidian distance for points in R^2 (for testing)
@@ -80,9 +79,15 @@
   [s]
   (Float/parseFloat s))
 
-
+(defn blosum-metric
+  "BLOSUM pseudo-metric; returns negative of the similarity score
+   BLOSUM62 matrix, gap penalty 11, extension penalty 1 (BLAST defaults)"
+  [a b]
+  (match.Match2/blosum62 a b))
 
 (comment
+
+(def pts [[0 0] [0 1] [0 2] [1 0] [1 1] [1 2] [2 0] [2 1] [2 2]])
 
 (def star [[0 0] [0 1] [1 0] [-1 0] [0 -1]])
 
