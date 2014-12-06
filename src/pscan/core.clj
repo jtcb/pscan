@@ -1,7 +1,9 @@
 (ns pscan.core 
   (:require [clojure.core.reducers :as r]
             [clojure.set :as s]
-            [clojure.string :refer [split]])
+            [clojure.string :refer [split]]
+            [clj-biosequence.core :as cbs]
+            [clojure.java.io :as io])
   (:import match.Match2))
 
 (defn r2-dist
@@ -85,7 +87,24 @@
   [a b]
   (match.Match2/blosum62 a b))
 
+(defn process-fasta
+  "Convert clj_biosequence.core.fastaSequence into a keyword->string map"
+  [x file]
+  {:sequence (apply str (:sequence x)),
+   :file file,
+   :description (:description x)}) 
+
+(defn read-fasta
+  "Read protein data into a vector of maps"
+  [file]
+  (with-open [r (cbs/bs-reader (cbs/init-fasta-file file :iupacAminoAcids))]
+    (let [fastas (cbs/biosequence-seq r)]
+      (into [] (map #(process-fasta % file) fastas)))))
+
+
 (comment
+
+(read-fasta "resources/simple.fasta")
 
 (def pts [[0 0] [0 1] [0 2] [1 0] [1 1] [1 2] [2 0] [2 1] [2 2]])
 
