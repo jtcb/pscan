@@ -81,8 +81,8 @@
   [s]
   (Float/parseFloat s))
 
-(defn blosum-metric
-  "BLOSUM pseudo-metric; returns negative of the similarity score
+(defn blosum-score
+  "Returns the BLOSUM score of a aligned to b
    BLOSUM62 matrix, gap penalty 11, extension penalty 1 (BLAST defaults)"
   [a b]
   (match.Match2/blosum62 a b))
