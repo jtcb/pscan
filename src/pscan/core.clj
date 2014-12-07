@@ -6,17 +6,21 @@
             [clojure.java.io :as io])
   (:import match.Match2))
 
-(defn r2-dist
-  "NegativeEuclidian distance for points in R^2 (for testing)
-   pt is a vector of length 2"
-  [a b]
-  (if (or (nil? a) (nil? b))
-    Double/NEGATIVE_INFINITY
-  ;else
-    (let [dx (- (a 0) (b 0))
-          dy (- (a 1) (b 1))]
-      (-
-        (Math/sqrt (+ (* dx dx) (* dy dy)))))))
+(declare region-query-s)
+(declare region-query-p)
+
+;; TODO; find optimal subdivision for r/fold; memoize
+
+;region-query-m memoized
+
+;region-query-mp memoized, parallel
+
+;; alias the appropriate region-query variant
+(def region-query region-query-p)
+
+(def memoized nil)
+
+;;;
 
 (defn region-query-s
   "Serial region query; returns all pts *at least* eps similar to pt."
@@ -30,14 +34,7 @@
   (letfn [(is-local? [x] (>= (metric pt x) eps))]
     (r/fold 5 (r/monoid into vector) conj (r/filter is-local? pts))))
 
-;; TODO; find optimal subdivision for r/fold; memoize
 
-;region-query-m memoized
-
-;region-query-mp memoized, parallel
-
-;; alias the appropriate region-query variant
-(def region-query region-query-p)
 
 (defn expand-cluster
   "Expand cluster at pt
@@ -127,10 +124,10 @@
   [f]
   (let [mem (atom {})]
     (fn [a b]
-      (if-let [e (find @mem #{a b})]
+      (if-let [e (find @mem (hash-set a b))]
         (val e)
         (let [ret (f a b)]
-          (swap! mem assoc #{a b} ret)
+          (swap! mem assoc (hash-set a b) ret)
           ret)))))
 
 ;;;
@@ -161,6 +158,18 @@
 
 (def blobs [[0 0] [0 1] [1 0] [1 1]
             [100 100] [101 100] [100 101] [101 101]])
+
+(defn r2-dist
+  "NegativeEuclidian distance for points in R^2 (for testing)
+   pt is a vector of length 2"
+  [a b]
+  (if (or (nil? a) (nil? b))
+    Double/NEGATIVE_INFINITY
+  ;else
+    (let [dx (- (a 0) (b 0))
+          dy (- (a 1) (b 1))]
+      (-
+        (Math/sqrt (+ (* dx dx) (* dy dy)))))))
 
 (dbscan blobs r2-dist 2 3)
 
