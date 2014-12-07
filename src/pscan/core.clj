@@ -7,21 +7,37 @@
   (:import match.Match2))
 
 (defn r2-dist
-  "Euclidian distance for points in R^2 (for testing)
+  "NegativeEuclidian distance for points in R^2 (for testing)
    pt is a vector of length 2"
   [a b]
   (if (or (nil? a) (nil? b))
-    Double/POSITIVE_INFINITY
+    Double/NEGATIVE_INFINITY
   ;else
     (let [dx (- (a 0) (b 0))
           dy (- (a 1) (b 1))]
-      (Math/sqrt (+ (* dx dx) (* dy dy))))))
+      (-
+        (Math/sqrt (+ (* dx dx) (* dy dy)))))))
 
-(defn region-query
-  "Serial region query; returns all pts within eps of pt by metric."
+(defn region-query-s
+  "Serial region query; returns all pts *at least* eps similar to pt."
   [pt pts metric eps]
-  (letfn [(is-local? [x] (<= (metric pt x) eps))]
+  (letfn [(is-local? [x] (>= (metric pt x) eps))]
     (into [] (filter is-local? pts))))
+
+(defn region-query-p
+  "Parallel region query; returns all pts at least eps similar to pt."
+  [pt pts metric eps]
+  (letfn [(is-local? [x] (>= (metric pt x) eps))]
+    (r/fold 5 (r/monoid into vector) conj (r/filter is-local? pts))))
+
+;; TODO; find optimal subdivision for r/fold; memoize
+
+;region-query-m memoized
+
+;region-query-mp memoized, parallel
+
+;; alias the appropriate region-query variant
+(def region-query region-query-p)
 
 (defn expand-cluster
   "Expand cluster at pt
@@ -54,8 +70,7 @@
                      (conj v current-point)))))))))
 
 (defn dbscan
-  "Run dbscan
-   Not fully tested"
+  "Run dbscan"
   [pts metric eps min-pts]
   
   (loop [points pts
@@ -100,6 +115,40 @@
   (with-open [r (cbs/bs-reader (cbs/init-fasta-file file :iupacAminoAcids))]
     (let [fastas (cbs/biosequence-seq r)]
       (into [] (map #(process-fasta % file) fastas)))))
+
+(defn protein-metric
+  "blosum score between 2 fastaSequences
+   Pseudo-metric (can be negative); larger is closer"
+  [a b]
+  (blosum-score (:sequence a) (:sequence b)))
+
+(defn memoize-metric
+  "Return a memoized version of metric f (symmetric)"
+  [f]
+  (let [mem (atom {})]
+    (fn [a b]
+      (if-let [e (find @mem #{a b})]
+        (val e)
+        (let [ret (f a b)]
+          (swap! mem assoc #{a b} ret)
+          ret)))))
+
+;;;
+
+(def files
+  ["UniRef90_L7WSQ0.fa",  "UniRef90_Q2FZQ3.fa", "UniRef90_A7X1N2.fa",
+   "UniRef90_L7WXN8.fa",  "UniRef90_Q5HMF1.fa", "UniRef90_C6F1E2.fa",
+   "UniRef90_P0CK84.fa",  "UniRef90_Q5HPT5.fa", "UniRef90_I3VED1.fa",
+   "UniRef90_Q0A457.fa"])
+
+(def prefixed-files
+  (mapv #(str "resources/" %) files))
+
+(def sample-proteins
+  (reduce into 
+          (map read-fasta (take 3 prefixed-files)))) 
+
+(time (def trial (dbscan sample-proteins protein-metric 100 4)))
 
 
 (comment
