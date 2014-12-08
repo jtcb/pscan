@@ -154,24 +154,40 @@
                   y))
         (for [protein cluster]
           [(reduce + (map #(mem-metric protein %) cluster)), protein])))))
-                
+               
+(defn representative-cluster
+  "Returns the representative in cluster-reps most similar to pt"
+  [pt cluster-reps metric]
+  (reduce (fn [x y]
+            (if (> (first x) (first y))
+              x
+              y))
+    (for [rep cluster-reps]
+      [(metric pt rep), rep])))
+
 ;;;
 
 (def files
-  ["UniRef90_L7WSQ0.fa",  "UniRef90_Q2FZQ3.fa", "UniRef90_A7X1N2.fa",
-   "UniRef90_L7WXN8.fa",  "UniRef90_Q5HMF1.fa", "UniRef90_C6F1E2.fa",
-   "UniRef90_P0CK84.fa",  "UniRef90_Q5HPT5.fa", "UniRef90_I3VED1.fa",
-   "UniRef90_Q0A457.fa"])
+  ["UniRef90_A0A060TYH3.fa", "UniRef90_I0C6W8.fa","UniRef90_Q0A457.fa",
+"UniRef90_A7WZS8.fa", "UniRef90_I3VED1.fa", "UniRef90_A7X1N2.fa", 
+"UniRef90_K0L6B1.fa",  "UniRef90_Q2FJN3.fa", "UniRef90_C6F1E2.fa",
+"UniRef90_L7WSQ0.fa",  "UniRef90_Q2FK43.fa", "UniRef90_L7WXN8.fa",
+"UniRef90_Q2FZQ3.fa", "UniRef90_H9ACK6.fa", "UniRef90_P0A080.fa",
+"UniRef90_I0C2H0.fa", "UniRef90_P0A0Q0.fa",  "UniRef90_Q5HPT5.fa",
+"UniRef90_I0C5P0.fa", "UniRef90_P0CK84.fa",  "UniRef90_W8UU66.fa",
+"UniRef90_I0C6V2.fa", "UniRef90_P55177.fa",  "UniRef90_X5EN08.fa",
+"UniRef90_Q5HMF1.fa"])
 
 (def prefixed-files
   (mapv #(str "resources/" %) files))
 
 (def sample-proteins
   (reduce into 
-          (map read-fasta (take 4 prefixed-files)))) 
+          (map read-fasta (take 10 prefixed-files))))
+
+(count sample-proteins)
 
 (time (def trial (dbscan sample-proteins protein-metric 100 4)))
-
 
 (comment
 
