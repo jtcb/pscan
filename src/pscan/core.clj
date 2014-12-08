@@ -8,17 +8,25 @@
 
 (declare region-query-s)
 (declare region-query-p)
+(declare memoized-metric)
 
-;; TODO; find optimal subdivision for r/fold; memoize
+;; TODO: find optimal subdivision for r/fold
 
-;region-query-m memoized
+(def memoized-dbscan
+  "If true, calls to the metric passed to dbscan will be memoized"
+  true)
 
-;region-query-mp memoized, parallel
+(def memoized-mediods
+  "If true, calls to the metric passed to mediod-protein will be memoized"
+  true)
 
-;; alias the appropriate region-query variant
-(def region-query region-query-p)
+(def region-query
+  "Select region-query-s (serial) or region-query-p (parallel)"
+  region-query-p)
 
-(def memoized nil)
+(def partition-size
+  "Approximate subdivision size for clojure.core.reducers/fold"
+  16)
 
 ;;;
 
@@ -32,8 +40,8 @@
   "Parallel region query; returns all pts at least eps similar to pt."
   [pt pts metric eps]
   (letfn [(is-local? [x] (>= (metric pt x) eps))]
-    (r/fold 5 (r/monoid into vector) conj (r/filter is-local? pts))))
-
+    (r/fold partition-size
+            (r/monoid into vector) conj (r/filter is-local? pts))))
 
 
 (defn expand-cluster
@@ -69,24 +77,27 @@
 (defn dbscan
   "Run dbscan"
   [pts metric eps min-pts]
-  
-  (loop [points pts
-         visited #{}
-         clusters #{}]
-    (let [pt (first points)]
-      (cond
-        (empty? points)
-          clusters
-        (visited pt) 
-          (recur (rest points)
-                 (conj visited pt)
-                 clusters)
-        :else
-          (let [{new-cluster :core, new-visited :visited}
-                (expand-cluster pt pts metric eps min-pts visited)]
+  (let [mem-metric (if memoized-dbscan
+                     (memoize-metric metric)
+                      metric)]
+
+    (loop [points pts
+           visited #{}
+           clusters #{}]
+      (let [pt (first points)]
+        (cond
+          (empty? points)
+            clusters
+          (visited pt) 
             (recur (rest points)
-                   new-visited
-                   (conj clusters new-cluster))))))) 
+                   (conj visited pt)
+                   clusters)
+          :else
+            (let [{new-cluster :core, new-visited :visited}
+                  (expand-cluster pt pts mem-metric eps min-pts visited)]
+              (recur (rest points)
+                     new-visited
+                     (conj clusters new-cluster))))))))
 
 (defn parse-float
   "Parse string s as float"
@@ -130,6 +141,20 @@
           (swap! mem assoc (hash-set a b) ret)
           ret)))))
 
+(defn medioid
+  "Return element of cluster that maximizes sum of similarity scores" 
+  [cluster metric]
+  (let [mem-metric (if memoized-mediods
+                     (memoize-metric metric)
+                      metric)]
+    (second 
+      (reduce (fn [x y]
+                (if (> (first x) (first y))
+                  x
+                  y))
+        (for [protein cluster]
+          [(reduce + (map #(mem-metric protein %) cluster)), protein])))))
+                
 ;;;
 
 (def files
@@ -143,12 +168,26 @@
 
 (def sample-proteins
   (reduce into 
-          (map read-fasta (take 3 prefixed-files)))) 
+          (map read-fasta (take 4 prefixed-files)))) 
 
 (time (def trial (dbscan sample-proteins protein-metric 100 4)))
 
 
 (comment
+
+(def memoized-dbscan
+  "If true, calls to the metric passed to dbscan will be memoized"
+  true)
+
+(def partition-size
+  "Approximate subdivision size for clojure.core.reducers/fold"
+  8)
+
+(def region-query
+  "Select region-query-s (serial) or region-query-p (parallel)"
+  region-query-p)
+
+
 
 (read-fasta "resources/simple.fasta")
 
