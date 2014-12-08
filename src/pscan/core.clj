@@ -6,29 +6,12 @@
             [clojure.java.io :as io])
   (:import match.Match2))
 
-(declare region-query-s)
-(declare region-query-p)
-(declare memoized-metric)
+(declare memoize-metric)
+(declare partition-size)
+(declare region-query)
+(declare memoized-dbscan)
+(declare memoized-medioids)
 
-;; TODO: find optimal subdivision for r/fold
-
-(def memoized-dbscan
-  "If true, calls to the metric passed to dbscan will be memoized"
-  true)
-
-(def memoized-mediods
-  "If true, calls to the metric passed to mediod-protein will be memoized"
-  true)
-
-(def region-query
-  "Select region-query-s (serial) or region-query-p (parallel)"
-  region-query-p)
-
-(def partition-size
-  "Approximate subdivision size for clojure.core.reducers/fold"
-  16)
-
-;;;
 
 (defn region-query-s
   "Serial region query; returns all pts *at least* eps similar to pt."
@@ -47,7 +30,7 @@
 (defn expand-cluster
   "Expand cluster at pt
    Returns false if there is not cluster to be had
-   Returns the core points of the cluster and an updated visited set otherwise" 
+   Returns the core points of the cluster and an updated visited set otherwise"
   [pt pts metric eps min-pts visited]
 
   (let [local (region-query pt pts metric eps)]
@@ -144,7 +127,7 @@
 (defn medioid
   "Return element of cluster that maximizes sum of similarity scores" 
   [cluster metric]
-  (let [mem-metric (if memoized-mediods
+  (let [mem-metric (if memoized-medioids
                      (memoize-metric metric)
                       metric)]
     (second 
@@ -165,7 +148,28 @@
     (for [rep cluster-reps]
       [(metric pt rep), rep])))
 
-;;;
+
+;;; "Constants"
+
+;; TODO: find optimal subdivision for r/fold (partition-size)
+
+(def memoized-dbscan
+  "If true, calls to the metric passed to dbscan will be memoized"
+  true)
+
+(def memoized-medioids
+  "If true, calls to the metric passed to medioid-protein will be memoized"
+  true)
+
+(def region-query
+  "Select region-query-s (serial) or region-query-p (parallel)"
+  region-query-p)
+
+(def partition-size
+  "Approximate subdivision size for clojure.core.reducers/fold"
+  16)
+
+;;; Evaluation
 
 (def files
   ["UniRef90_A0A060TYH3.fa", "UniRef90_I0C6W8.fa","UniRef90_Q0A457.fa",
@@ -185,9 +189,10 @@
   (reduce into 
           (map read-fasta (take 10 prefixed-files))))
 
-(count sample-proteins)
-
 (time (def trial (dbscan sample-proteins protein-metric 100 4)))
+
+
+;;; Test code (I know, I know, I should have written a real test suite.)
 
 (comment
 
@@ -202,8 +207,6 @@
 (def region-query
   "Select region-query-s (serial) or region-query-p (parallel)"
   region-query-p)
-
-
 
 (read-fasta "resources/simple.fasta")
 
@@ -249,5 +252,8 @@
 (region-query [0 0] pts r2-dist 2)
   
 (map #(region-query % pts r2-dist 1) '([0 0] [0 1]))
+
+
+
 )
 
