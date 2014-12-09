@@ -138,7 +138,7 @@
         (for [protein cluster]
           [(reduce + (map #(mem-metric protein %) cluster)), protein])))))
                
-(defn representative-cluster
+(defn nearest-neighbohr
   "Returns the representative in cluster-reps most similar to pt"
   [pt cluster-reps metric]
   (reduce (fn [x y]
@@ -157,7 +157,7 @@
 
 (def memoized-dbscan
   "If true, calls to the metric passed to dbscan will be memoized"
-  false)
+  true)
 
 (def region-query
   "Select region-query-s (serial) or region-query-p (parallel)"
@@ -172,12 +172,49 @@
 
 (comment
 
-(def sample-proteins
-  "Take 10 clusters (10 proteins each) and dump them into a single collection"
-      (reduce into 
-              (map read-fasta (take 10 prefixed-files))))
+;; :Connect to repl; require namespace, eval definitions
+(do 
+  (require 'pscan.core)
+  (def sample-proteins
+    "Dump 10 clusters (10 proteins each) into a single vector"
+        (reduce into 
+                (map read-fasta (take 10 prefixed-files))))
 
-  
+  (def a-protein
+    "Some protein in the collection"
+    (get sample-proteins 50)))
+
+;; Protein data
+(:sequence a-protein)
+(:file a-protein)
+(:description a-protein)
+
+;; cluster proteins (serial)
+(time
+  (def clusters
+    (dbscan sample-proteins protein-metric 250 4)))
+
+;; distinct source files per cluster?
+(for [c clusters]
+  (distinct (map #(:file %) c)))
+
+;; proteins per cluster?
+(for [c clusters]
+  (count c))
+
+;; turn on parallelism
+(def region-query
+  "Select region-query-s (serial) or region-query-p (parallel)"
+  region-query-p)
+
+(time
+  (def clusters
+    (dbscan sample-proteins protein-metric 250 4)))
+
+;; calculate medioids for clusters
+(def medioids (map #(medioid % protein-metric) clusters))
+
+(nearest-neighbohr a-protein medioids protein-metric)
 
 )
 
