@@ -151,50 +151,96 @@
 
 ;;; "Constants"
 
-;; TODO: find optimal subdivision for r/fold (partition-size)
-
-(def memoized-dbscan
-  "If true, calls to the metric passed to dbscan will be memoized"
-  true)
-
 (def memoized-medioids
   "If true, calls to the metric passed to medioid-protein will be memoized"
   true)
 
+(def memoized-dbscan
+  "If true, calls to the metric passed to dbscan will be memoized"
+  false)
+
 (def region-query
   "Select region-query-s (serial) or region-query-p (parallel)"
-  region-query-p)
+  region-query-s)
 
 (def partition-size
   "Approximate subdivision size for clojure.core.reducers/fold"
   16)
 
+
+;;; "Demo" ;;;
+
+(comment
+
+(def sample-proteins
+  "Take 10 clusters (10 proteins each) and dump them into a single collection"
+      (reduce into 
+              (map read-fasta (take 10 prefixed-files))))
+
+  
+
+)
+
+
+
 ;;; Evaluation
 
 (def files
   ["UniRef90_A0A060TYH3.fa", "UniRef90_I0C6W8.fa","UniRef90_Q0A457.fa",
-"UniRef90_A7WZS8.fa", "UniRef90_I3VED1.fa", "UniRef90_A7X1N2.fa", 
-"UniRef90_K0L6B1.fa",  "UniRef90_Q2FJN3.fa", "UniRef90_C6F1E2.fa",
-"UniRef90_L7WSQ0.fa",  "UniRef90_Q2FK43.fa", "UniRef90_L7WXN8.fa",
-"UniRef90_Q2FZQ3.fa", "UniRef90_H9ACK6.fa", "UniRef90_P0A080.fa",
-"UniRef90_I0C2H0.fa", "UniRef90_P0A0Q0.fa",  "UniRef90_Q5HPT5.fa",
-"UniRef90_I0C5P0.fa", "UniRef90_P0CK84.fa",  "UniRef90_W8UU66.fa",
-"UniRef90_I0C6V2.fa", "UniRef90_P55177.fa",  "UniRef90_X5EN08.fa",
-"UniRef90_Q5HMF1.fa"])
+   "UniRef90_A7WZS8.fa", "UniRef90_I3VED1.fa", "UniRef90_A7X1N2.fa", 
+   "UniRef90_K0L6B1.fa",  "UniRef90_Q2FJN3.fa", "UniRef90_C6F1E2.fa",
+   "UniRef90_L7WSQ0.fa",  "UniRef90_Q2FK43.fa", "UniRef90_L7WXN8.fa",
+   "UniRef90_Q2FZQ3.fa", "UniRef90_H9ACK6.fa", "UniRef90_P0A080.fa",
+   "UniRef90_I0C2H0.fa", "UniRef90_P0A0Q0.fa",  "UniRef90_Q5HPT5.fa",
+   "UniRef90_I0C5P0.fa", "UniRef90_P0CK84.fa",  "UniRef90_W8UU66.fa",
+   "UniRef90_I0C6V2.fa", "UniRef90_P55177.fa",  "UniRef90_X5EN08.fa",
+   "UniRef90_Q5HMF1.fa"])
 
 (def prefixed-files
   (mapv #(str "resources/" %) files))
 
-(def sample-proteins
-  (reduce into 
-          (map read-fasta (take 10 prefixed-files))))
+;;
 
-(time (def trial (dbscan sample-proteins protein-metric 100 4)))
+(defn validate
+  "Print clustering times for number of files from 5, 10, ... 25"
+  []
+  (println "Region query:" region-query)
+  (println "Partition size:" partition-size)
+  (println "Memoization:" memoized-dbscan)
+  (println "---")
+
+  (doseq [num-files (range 5 (inc 25) 5)]
+    ;; grab files
+    (def sample-proteins
+      (reduce into 
+              (map read-fasta (take num-files prefixed-files))))
+    
+    ;;
+    (println "File count:" num-files)
+
+    ;; cluster
+    (time
+      (def clusters (dbscan sample-proteins protein-metric 250 4)))
+
+    ;; validate clusters
+    (do
+      (println "Cluster count:" (count clusters))
+      (println "Cluster sizes:" (map count clusters))
+      (println "Files per cluster:"
+        (for [cluster clusters]
+          (count (distinct (map #(:file %) cluster))))))
+    
+    (println)))
+
 
 
 ;;; Test code (I know, I know, I should have written a real test suite.)
 
 (comment
+
+
+(time (def trial (dbscan sample-proteins protein-metric 100 4)))
+
 
 (def memoized-dbscan
   "If true, calls to the metric passed to dbscan will be memoized"

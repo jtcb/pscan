@@ -1,0 +1,22 @@
+
+partition, memoization, time for 25 files
+
+4, no: 58
+
+4, yes: 29
+
+8, no: 59
+
+8, yes: 30
+
+16, no: 61
+
+16, yes: 32
+
+32, no: 58
+
+32, yes: 34
+
+64, no: 60
+
+64, yes: 45
