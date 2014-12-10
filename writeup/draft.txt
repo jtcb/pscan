@@ -1,0 +1,60 @@
+Parallel, density-based clustering of protein sequences (PSCAN)
+Joshua Brulé
+
+# Introduction
+
+Traditional clustering algorithms often scale poorly in protein clustering due to the expense in calculating precise similarity scores and the volume of data. Existing techniques, such as UCLUST or CD-HIT [CITATION NEEDED] use a greedy algorithm that identifies a representative sequence for each cluster, and assigns a new sequence to a cluster if it is sufficiently similar to the representative; otherwise a sequence becomes the representative sequence for a new cluster.
+
+PSCAN is designed to explore the tractability of using a parallel implementation of a higher-quality (and more time/space expensive) clustering algorithm on a representative sample of the sequences to be clustered. After producing high-quality clusters, it is possible to calculate the most representative (medioid) sequence for each cluster, and perform a simple nearest-neighbour clustering to classify the rest of the sequences.
+
+# Methods
+
+PSCAN is a parallel implementation of the density-based clustering algorithm DBSCAN*, using a global sequence alignment score as the distance measure.
+
+DBSCAN [CITATION NEEDED (original paper and DBSCAN* paper)] clusters points based on density reachability - a point is directly density reachable if it is within *epsilon* distance of at least *min-pts* points. A point p is density reachable to q if there is some sequence of points p1, p2, ... pn=q where each point in the sequence is directly density reachable to the next. A cluster is the collection of all points that are all mutually density reachable. [NOTE 1]
+
+DBSCAN requires O(n) region queries - for each point, the algorithm has to determine the collection of points within *epsilon* distance, for a total runtime of O(n^2), executed serially. However, region queries are very amenable to parallelization. PSCAN uses fork/join parallelism to execute region queries which partitions the collection of sequences into approximately *partition_size* sized subcollections, computes and filters the distance scores in each partition and recursively combines the partitions into the final result. [NOTE 2] In addition, PSCAN optionally memoizes distance computations, CASing (compare-and-set) the distance value into the cache.
+
+Note that the distance function does not have to satisfy all of the metric axioms - it only has to be symmetric. PSCAN uses the Needleman-Wunsch algorithm with affine gap penalty to calculate a similarity score for each pair of protein sequences, with a higher score corresponding to more closely related proteins. Under this definition of distance, "within epsilon distance" refers to two proteins having a similarity score of at least epsilon.
+
+As described, PSCAN has a large number of free parameters. Defaults based on previous work were used wherever possible: min-pts = 4, recommended by the original DBSCAN authors [CITATION: http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.71.1980]; substitution matrix = BLOSUM62; gap existence penalty = 11; gap extension penalty = 1, NCBI BLAST defaults
+
+## Test Data
+
+PSCAN was tested using data from the UniProt Reference Clusters; (http://www.uniprot.org/uniref/?query=length%3A%5B247+TO+257%5D+AND+identity%3A0.9&sort=count) 25 clusters of 10 (unique) sequences per cluster, of sequence length 247-257 (the median sequence lengths for Archae and Bacterial proteins, respectively.
+
+Grabbed data from mean largest available UniProt clusters of sequence length from 24-257 (median  archae, bacterial protein length respectively http://nar.oxfordjournals.org/content/33/10/3390.full
+
+# Results
+
+epsilon = experimental variation
+Partition size = experimental variation
+memoization? varied
+
+An appropriate *epsilon* was determined experimentally: glomed together at too low epsilon 200, and started to fail to classify at about 1000... Ran the rest of the clustering at 250.
+
+[CHART CHART CHART!]
+BORK! need chart of perf, etc...
+Number of optimizatiosn not taken...
+
+Calculated medioids and Took the complete UniProt ??? cluster; to nearest-neighbohr classify. Worked perfectly.
+
+# Discussion 
+
+More processors quicly outpace the benefits of memoization. O(n^2) space does not seem to be worth it. Throw more processors at it and just use O(n) space.
+
+nearest-neighbohr classifying can work in linear time and *constant* space (lazily load from file). Future work: fill available memory with sample; nearest-neighbohr classify on rest of data.
+
+BLOSUM is, in a sense, far more precise than necessary. However, this opens the possibility for tighter clusters, compared to existing techniques.
+
+
+Conclusion: seems promising... need biologically plausible, *precise* similarity measures.
+
+
+---
+
+Notes
+
+[Note 1] In the original DBSCAN algorithm, density-reachability is not necessarily symmetric. It is possible for there to be "border" points, which are density reachable from some "core" point, but do not have *min_pts* neighbours within *epsilon* distance. This can result in the same border point being assigned to different clusters, depending on the order in which points are visited by the algorithm. PSCAN implements the DBSCAN* variation of DBSCAN, which guarantees a deterministic classification by treating border points as noise points.
+
+[NOTE 2] PSCAN uses clojure.core.reducers for parallelism, which uses Java's Fork/Join framework. Idle threads can "work-steal" tasks from other threads,  See: http://gee.cs.oswego.edu/dl/papers/fj.pdf
