@@ -1,0 +1,7 @@
+"resources/UniRef90_I0C2H0.fa" "resources/UniRef90_P0A0Q0.fa" glomed together at eps = 100, 200
+
+stopped glomming together at about 225... go with "250" since that's the length of the proteins anyway....
+
+Start losing cluster points at about 1000
+
+successfully nearest-neighbour clusters: "resources/UniRef90_Q0A457_full.fasta" for all proteins (3175 proteins)

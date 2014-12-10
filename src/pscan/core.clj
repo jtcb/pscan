@@ -76,11 +76,14 @@
                    (conj visited pt)
                    clusters)
           :else
-            (let [{new-cluster :core, new-visited :visited}
-                  (expand-cluster pt pts mem-metric eps min-pts visited)]
+            (if-let [e (expand-cluster pt pts mem-metric eps min-pts visited)]
               (recur (rest points)
-                     new-visited
-                     (conj clusters new-cluster))))))))
+                     (:visited e)
+                     (conj clusters (:core e)))
+            ;else
+              (recur (rest points)
+                     (conj visited pt)
+                     clusters)))))))
 
 (defn parse-float
   "Parse string s as float"
@@ -161,63 +164,11 @@
 
 (def region-query
   "Select region-query-s (serial) or region-query-p (parallel)"
-  region-query-s)
+  region-query-p)
 
 (def partition-size
   "Approximate subdivision size for clojure.core.reducers/fold"
   16)
-
-
-;;; "Demo" ;;;
-
-(comment
-
-;; :Connect to repl; require namespace, eval definitions
-(do 
-  (require 'pscan.core)
-  (def sample-proteins
-    "Dump 10 clusters (10 proteins each) into a single vector"
-        (reduce into 
-                (map read-fasta (take 10 prefixed-files))))
-
-  (def a-protein
-    "Some protein in the collection"
-    (get sample-proteins 50)))
-
-;; Protein data
-(:sequence a-protein)
-(:file a-protein)
-(:description a-protein)
-
-;; cluster proteins (serial)
-(time
-  (def clusters
-    (dbscan sample-proteins protein-metric 250 4)))
-
-;; distinct source files per cluster?
-(for [c clusters]
-  (distinct (map #(:file %) c)))
-
-;; proteins per cluster?
-(for [c clusters]
-  (count c))
-
-;; turn on parallelism
-(def region-query
-  "Select region-query-s (serial) or region-query-p (parallel)"
-  region-query-p)
-
-(time
-  (def clusters
-    (dbscan sample-proteins protein-metric 250 4)))
-
-;; calculate medioids for clusters
-(def medioids (map #(medioid % protein-metric) clusters))
-
-(nearest-neighbohr a-protein medioids protein-metric)
-
-)
-
 
 
 ;;; Evaluation
@@ -270,14 +221,109 @@
     (println)))
 
 
+(defn quick-cluster-check
+  []
+  "Compute all the clusters and medioids"
+  (def sample-proteins
+    (reduce into
+            (map read-fasta (take 25 prefixed-files))))
+
+  (def clusters (dbscan sample-proteins protein-metric 500 4))
+  
+  (do
+      (println "Cluster count:" (count clusters))
+      (println "Cluster sizes:" (map count clusters))
+      (println "Files per cluster:"
+        (for [cluster clusters]
+          (count (distinct (map #(:file %) cluster))))))
+    
+  (def medioids (map #(medioid % protein-metric) clusters))
+
+)
+
+(defn quick-nearest-check
+  [n]
+  "Nearest neighbohr cluster for n proteins in large-cluster; requires running
+   quick-cluster-check first"
+
+  (def large-cluster (read-fasta "resources/UniRef90_Q0A457_full.fasta"))
+
+  (into []
+    (distinct
+      (map #(:file %)
+        (map second
+          (for [protein (take n large-cluster)]
+            (nearest-neighbohr protein medioids protein-metric))))))
+
+)
+
+
+;;; Class demo ;;;
+
+(comment
+
+;; :Connect to repl; require namespace, eval definitions
+(do 
+  (require 'pscan.core)
+  (def sample-proteins
+    "Dump 10 clusters (10 proteins each) into a single vector"
+        (reduce into 
+                (map read-fasta (take 10 prefixed-files))))
+
+  (def a-protein
+    "Some protein in the collection"
+    (get sample-proteins 50))
+  
+  (def region-query
+    "Select region-query-s (serial) or region-query-p (parallel)"
+    region-query-s))
+
+
+
+;; Protein data
+(:sequence a-protein)
+(:file a-protein)
+(:description a-protein)
+
+;; cluster proteins (serial)
+(time
+  (def clusters
+    (dbscan sample-proteins protein-metric 250 4)))
+
+;; distinct source files per cluster?
+(for [c clusters]
+  (distinct (map #(:file %) c)))
+
+;; proteins per cluster?
+(for [c clusters]
+  (count c))
+
+;; turn on parallelism
+(def region-query
+  "Select region-query-s (serial) or region-query-p (parallel)"
+  region-query-p)
+
+(time
+  (def clusters
+    (dbscan sample-proteins protein-metric 250 4)))
+
+;; calculate medioids for clusters
+(def medioids (map #(medioid % protein-metric) clusters))
+
+(nearest-neighbohr a-protein medioids protein-metric)
+
+)
+
+
+
 
 ;;; Test code (I know, I know, I should have written a real test suite.)
 
 (comment
 
 
-(time (def trial (dbscan sample-proteins protein-metric 100 4)))
 
+(time (def trial (dbscan sample-proteins protein-metric 100 4)))
 
 (def memoized-dbscan
   "If true, calls to the metric passed to dbscan will be memoized"

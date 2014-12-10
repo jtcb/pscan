@@ -1,0 +1,9 @@
+247-267 length (median archae to median bacteria length, respectively; see 2005-median-protein data)
+
+90% similarity;
+
+ranked by size of cluster; "preview first 10"
+
+---
+
+UniRef90_Q0A457_full.fasta; 3,175
