@@ -187,6 +187,11 @@
 (def prefixed-files
   (mapv #(str "resources/" %) files))
 
+(def sample-proteins
+  "50 sample proteins from 5 UniProt clusters"
+  (reduce into
+          (map read-fasta (take 5 prefixed-files))))
+
 ;;
 
 (defn validate
@@ -223,7 +228,7 @@
 
 (defn quick-cluster-check
   []
-  "Compute all the clusters and medioids"
+  "Quickly compute all the clusters and medioids"
   (def sample-proteins
     (reduce into
             (map read-fasta (take 25 prefixed-files))))
