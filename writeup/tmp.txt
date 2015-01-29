@@ -1,0 +1,316 @@
+Region query: #<core$region_query_p pscan.core$region_query_p@9ae72bc>
+Partition size: 16
+Memoization: true
+---
+File count: 5
+"Elapsed time: 2012.141554 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 5450.346353 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 11728.64675 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 20827.031713 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 32622.82514 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+---
+
+Region query: #<core$region_query_p pscan.core$region_query_p@9ae72bc>
+Partition size: 16
+Memoization: false
+---
+File count: 5
+"Elapsed time: 2366.108241 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 9311.016553 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 22410.445663 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 39260.627541 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 61583.857043 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+---
+user=> (pscan.core/validate)
+Region query: #<core$region_query_s pscan.core$region_query_s@5ee7ca6a>
+Partition size: 16
+Memoization: true
+---
+File count: 5
+"Elapsed time: 3508.13319 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 14220.615743 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 33009.612399 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 58370.674376 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 92271.794112 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+---
+
+user=> (pscan.core/validate)
+Region query: #<core$region_query_s pscan.core$region_query_s@5ee7ca6a>
+Partition size: 16
+Memoization: false
+---
+File count: 5
+"Elapsed time: 6836.432159 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 28076.185687 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 65354.011755 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 116102.541025 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 183144.355985 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+---
+
+Region query: #<core$region_query_p pscan.core$region_query_p@9ae72bc>
+Partition size: 8
+Memoization: false
+---
+File count: 5
+"Elapsed time: 2393.110148 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 9641.281998 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 21135.675733 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 37796.862116 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 59156.426144 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+---
+
+user=> (pscan.core/validate)
+Region query: #<core$region_query_p pscan.core$region_query_p@9ae72bc>
+Partition size: 8
+Memoization: true
+---
+File count: 5
+"Elapsed time: 1348.051193 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 5120.91801 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 11055.043498 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 19675.824965 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 30786.000757 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+
+---
+
+user=> (pscan.core/validate)
+Region query: #<core$region_query_p pscan.core$region_query_p@9ae72bc>
+Partition size: 32
+Memoization: false
+---
+File count: 5
+"Elapsed time: 3698.659655 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 9594.676458 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 20897.079691 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 37029.291444 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 58636.856422 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+---
+
+Region query: #<core$region_query_p pscan.core$region_query_p@9ae72bc>
+Partition size: 32
+Memoization: true
+---
+File count: 5
+"Elapsed time: 2617.711497 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 6934.108531 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 12619.955075 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 21292.735504 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 34287.284076 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+---
+
+user=> (pscan.core/validate)
+Region query: #<core$region_query_p pscan.core$region_query_p@9ae72bc>
+Partition size: 64
+Memoization: true
+---
+File count: 5
+"Elapsed time: 3613.101634 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 10889.363267 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 16414.75567 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 28641.727323 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 45041.381236 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+---
+user=> (pscan.core/validate)
+Region query: #<core$region_query_p pscan.core$region_query_p@9ae72bc>
+Partition size: 64
+Memoization: false
+---
+File count: 5
+"Elapsed time: 6864.480889 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 15791.750704 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 22313.290919 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 38628.316281 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 60369.384811 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+----
+
+user=> (pscan.core/validate)
+Region query: #<core$region_query_p pscan.core$region_query_p@9ae72bc>
+Partition size: 4
+Memoization: true
+---
+File count: 5
+"Elapsed time: 1445.978339 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 4916.640934 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 10859.808109 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 19126.119111 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 29934.75733 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+---
+
+user=> (pscan.core/validate)
+Region query: #<core$region_query_p pscan.core$region_query_p@9ae72bc>
+Partition size: 4
+Memoization: false
+---
+File count: 5
+"Elapsed time: 2383.999743 msecs"
+Files per cluster: (1 1 1 1 1)
+
+File count: 10
+"Elapsed time: 9351.531683 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1)
+
+File count: 15
+"Elapsed time: 21062.462741 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 20
+"Elapsed time: 37025.528499 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+File count: 25
+"Elapsed time: 58549.736643 msecs"
+Files per cluster: (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
