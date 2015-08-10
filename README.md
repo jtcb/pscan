@@ -1,7 +1,5 @@
 # pscan
 
-CMSC701 term project
-
 ## Installation
 
 Requires Leiningen to build/run:
